@@ -1,5 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
+
+final analytics = FirebaseAnalytics();
 
 void main() => runApp(MyApp());
 
@@ -52,16 +55,18 @@ class _MyHomePageState extends State<MyHomePage> {
       key: ValueKey(record.name),
       padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
       child: Container(
-        decoration: BoxDecoration(
-          border: Border.all(color: Colors.grey),
-          borderRadius: BorderRadius.circular(5.0),
-        ),
-        child: ListTile(
-            title: Text(record.name),
-            trailing: Text(record.votes.toString()),
-            onTap: () => record.reference
-                .updateData({'votes': FieldValue.increment(1)})),
-      ),
+          decoration: BoxDecoration(
+            border: Border.all(color: Colors.grey),
+            borderRadius: BorderRadius.circular(5.0),
+          ),
+          child: ListTile(
+              title: Text(record.name),
+              trailing: Text(record.votes.toString()),
+              onTap: () {
+                analytics
+                    .logEvent(name: 'vote', parameters: {'name': record.name});
+                record.reference.updateData({'votes': FieldValue.increment(1)});
+              })),
     );
   }
 }
